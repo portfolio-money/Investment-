@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accumarkets | Africa's Premier Trading Platform</title>
+    <style>
+        :root {
+            --primary: #d4af37; /* Gold */
+            --dark: #0a0a0a;
+            --light: #ffffff;
+            --grey: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Loading Screen */
+        #loader-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 80%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.1s;
+        }
+
+        /* Login Screen */
+        #login-screen, #dashboard, #balance-screen, #withdrawal-screen, #arrears-screen {
+            display: none;
+        }
+
+        .card {
+            background: var(--grey);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #222;
+            border: 1px solid var(--primary);
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            border: none;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .disclaimer {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 20px;
+            text-align: justify;
+        }
+
+        /* Dashboard Styles */
+        .header-info {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .client-name { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .live-clock { font-size: 0.9rem; margin-top: 5px; }
+
+        .menu-btn {
+            background: #252525;
+            color: white;
+            text-align: left;
+            border-left: 5px solid var(--primary);
+            margin: 15px 0;
+        }
+
+        .back-btn { background: #444; color: white; margin-top: 20px; }
+
+        .error { color: #ff4444; font-size: 0.8rem; margin-top: 5px; }
+        
+        .bank-details {
+            background: #111;
+            padding: 15px;
+            text-align: left;
+            border: 1px dashed var(--primary);
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <div id="loader-screen">
+            <h2 style="color: var(--primary);">Revolutionising Forex Trading in Africa</h2>
+            <p style="font-size: 0.9rem;">Africa's elite educators and traders launching the premier platform...</p>
+            <div class="progress-bar"><div id="progress-fill"></div></div>
+            <p id="progress-text">0%</p>
+        </div>
+
+        <div id="login-screen" class="card">
+            <h2 style="color: var(--primary);">ACCUMARKETS</h2>
+            <p>A Trader-Centric Platform</p>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="handleLogin()">Login</button>
+            <p id="login-msg"></p>
+            
+            <div class="disclaimer">
+                <b>Disclaimers:</b> Trading Forex/CFDs carries high risk. Accumarkets (Pty) Ltd is a Juristic Rep of Elite Financial Services (FSP 52677). Counterparty is RocketX (Pty) Ltd (FSP 52142).
+            </div>
+        </div>
+
+        <div id="dashboard" class="card">
+            <div class="header-info">
+                <div class="client-name">JOHAN DAYSEL</div>
+                <div class="live-clock" id="clock-display"></div>
+            </div>
+            <button class="menu-btn" onclick="showScreen('balance-screen')">. VIEW YOUR BALANCE</button>
+            <button class="menu-btn" onclick="showScreen('withdrawal-screen')">. MAKE WITHDRAWAL</button>
+            <button class="menu-btn" onclick="showScreen('arrears-screen')">. CURRENT ARREARS</button>
+        </div>
+
+        <div id="balance-screen" class="card">
+            <h3>ACCOUNT BALANCE</h3>
+            <h1 style="color: var(--primary); font-size: 3rem;">R15,800,230</h1>
+            <p>Live Update: Active</p>
+            <button class="back-btn" onclick="showScreen('dashboard')">BACK</button>
+        </div>
+
+        <div id="withdrawal-screen" class="card">
+            <h3>WITHDRAWAL</h3>
+            <input type="text" id="w-holder" placeholder="Account Holder Name">
+            <input type="text" id="w-bank" placeholder="Bank Name">
+            <input type="text" id="w-branch" placeholder="Branch Code">
+            <input type="number" id="w-amount" placeholder="Amount">
+            <input type="text" id="w-ref" placeholder="Withdrawal Reference">
+            <button onclick="processWithdrawal()">PAY</button>
+            
+            <div id="withdraw-loading" style="display:none; margin-top:20px;">
+                <p>Processing...</p>
+                <div class="progress-bar"><div id="withdraw-fill"></div></div>
+                <p id="withdraw-status">0%</p>
+            </div>
+            
+            <p id="decline-msg" style="color: #ff4444; display:none; margin-top:10px;">
+                <b>DECLINED:</b> Transaction failed. Please check your arrears or banking details.
+            </p>
+            
+            <button class="back-btn" onclick="showScreen('dashboard')">BACK</button>
+        </div>
+
+        <div id="arrears-screen" class="card">
+            <h3>CURRENT ARREARS</h3>
+            <h2 style="color: #ff4444;">R47060.00</h2>
+            <p><i>Arrears must be settled before withdrawal</i></p>
+            
+            <button onclick="document.getElementById('purchase-info').style.display='block'">PURCHASE / SETTLE</button>
+            
+            <div id="purchase-info" style="display:none; margin-top:20px;">
+                <div class="bank-details">
+                    <b>Bank name:</b> Discovery<br>
+                    <b>ACC Hold:</b> investment (pty)<br>
+                    <b>ACC number:</b> 1794943694
+                </div>
+                <p>Upload Proof of Payment:</p>
+                <input type="file">
+                <button style="background: green; color: white;">APPLY</button>
+            </div>
+
+            <button class="back-btn" onclick="showScreen('dashboard')">BACK</button>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Initial Loading Logic
+        let progress = 0;
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+
+        const interval = setInterval(() => {
+            progress += 1;
+            progressFill.style.width = progress + '%';
+            progressText.innerText = progress + '%';
+
+            if (progress >= 100) {
+                clearInterval(interval);
+                document.getElementById('loader-screen').style.display = 'none';
+                document.getElementById('login-screen').style.display = 'block';
+            }
+        }, 30);
+
+        // 2. Login Logic
+        function handleLogin() {
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            const msg = document.getElementById('login-msg');
+
+            if (user === 'y2j2026' && pass === '10111') {
+                msg.innerText = "Authenticating... please wait 3-5 seconds";
+                msg.style.color = "var(--primary)";
+                
+                setTimeout(() => {
+                    showScreen('dashboard');
+                    startClock();
+                }, 4000);
+            } else {
+                msg.innerText = "Invalid credentials!";
+                msg.style.color = "red";
+            }
+        }
+
+        // 3. Navigation
+        function showScreen(screenId) {
+            const screens = ['login-screen', 'dashboard', 'balance-screen', 'withdrawal-screen', 'arrears-screen'];
+            screens.forEach(s => document.getElementById(s).style.display = 'none');
+            document.getElementById(screenId).style.display = 'block';
+            
+            // Reset withdrawal state if going back
+            if(screenId !== 'withdrawal-screen') {
+                document.getElementById('withdraw-loading').style.display = 'none';
+                document.getElementById('decline-msg').style.display = 'none';
+            }
+        }
+
+        // 4. Live Clock
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clock-display').innerText = now.toLocaleString();
+            }, 1000);
+        }
+
+        // 5. Withdrawal Logic (The 98% Decline)
+        function processWithdrawal() {
+            const holder = document.getElementById('w-holder').value;
+            const bank = document.getElementById('w-bank').value;
+            
+            if(!holder || !bank) {
+                alert("Please fill in banking details");
+                return;
+            }
+
+            const loadDiv = document.getElementById('withdraw-loading');
+            const fill = document.getElementById('withdraw-fill');
+            const status = document.getElementById('withdraw-status');
+            const decline = document.getElementById('decline-msg');
+
+            loadDiv.style.display = 'block';
+            decline.style.display = 'none';
+            let wProgress = 0;
+
+            const wInterval = setInterval(() => {
+                wProgress += 2;
+                fill.style.width = wProgress + '%';
+                status.innerText = wProgress + '%';
+
+                if (wProgress >= 98) {
+                    clearInterval(wInterval);
+                    decline.style.display = 'block';
+                    status.innerText = "98% - System Error";
+                }
+            }, 50);
+        }
+    </script>
+</body>
+</html>
